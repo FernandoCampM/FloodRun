@@ -1,0 +1,80 @@
+@startuml
+title FloodRun — Diagrama de Atividades (registro → consulta → análise)
+
+|Cidadão|
+start
+:Abrir o FloodRun;
+
+|Sistema|
+:Carregar mapa (matrizes dist_carro e dist_pe)
+e histórico simulado (35 ocorrências);
+
+repeat
+  |Cidadão|
+  :Escolher opção no menu;
+  |Sistema|
+  if (Opção válida?) then (não)
+    :Mostrar "valor inválido";
+  else (sim)
+    switch (Opção)
+    case (1 Cadastrar)
+      |Cidadão|
+      :Informar região, data, chuva (mm) e categoria;
+      |Sistema|
+      if (Dados válidos?) then (sim)
+        if (Categoria = alagamento leve?) then (sim)
+          |Cidadão|
+          :Informar se alagou;
+          |Sistema|
+        else (não)
+          :alagou = sim;
+        endif
+        :Adicionar ao vetor de ocorrências;
+      else (não)
+        :Pedir o dado novamente;
+      endif
+    case (2 Listar / 3 Buscar)
+      :Percorrer o vetor (busca sequencial)
+      comparando região ou categoria;
+      :Exibir resultados e contador;
+    case (4 Estatísticas)
+      :Uma passada pelo vetor
+      (contadores e acumuladores);
+      :Exibir totais, chuva média
+      e região mais crítica;
+    case (5 Ordenar)
+      :Ordenar cópia do vetor
+      (selection / bubble / insertion);
+      :Exibir lista ordenada;
+    case (6 Risco)
+      |Cidadão|
+      :Informar previsão de chuva (mm);
+      |Sistema|
+      :Para cada região: limiar e seguro
+      por busca sequencial;
+      :Classificar BAIXO / MÉDIO / ALTO;
+    case (7 Rota)
+      |Cidadão|
+      :Informar origem, destino, modo (pé/carro)
+      e previsão de chuva;
+      |Sistema|
+      :Calcular risco de cada região;
+      if (Destino em risco ALTO?) then (sim)
+        :Avisar: não há rota segura;
+      else (não)
+        :Dijkstra com peso = km × fator de risco
+        (regiões ALTO bloqueadas);
+        if (Destino alcançado?) then (sim)
+          :Comparar com a rota mais curta sem risco;
+          :Exibir rota, km reais e regiões evitadas;
+        else (não)
+          :Avisar: não existe rota segura
+          (sugerir ir a pé);
+        endif
+      endif
+    endswitch
+  endif
+repeat while (Opção diferente de 0 (Sair)?) is (sim) not (não)
+:Encerrar;
+stop
+@enduml

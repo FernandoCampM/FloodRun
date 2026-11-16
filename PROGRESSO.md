@@ -17,12 +17,14 @@
 Compila sem warnings com `g++ -Wall -Wextra -std=c++17 -o floodrun main.cpp`
 (GCC 16.2, WinLibs, instalado via winget neste PC).
 
-Documentos: `EXPLICACAO.md` ✔ · `ROTEIRO_TESTE.md` ✔
+Documentos: `EXPLICACAO.md` ✔ · `ROTEIRO_TESTE.md` ✔ · `relatorio.md` ✔ (com ODS 11, 9 e 13) ·
+`diagrama.puml` + `diagrama.md` (Mermaid) ✔ · `ROTEIRO_VIDEO.md` ✔
 
 ## Falta
-- [ ] `relatorio.md` (2 a 4 páginas, com seção de ODS 11, 9 e 13): só se for pedido
-- [ ] Diagrama de atividades UML (`diagrama.puml` ou `diagrama.md`)
-- [ ] Roteiro do vídeo de 3 minutos
+- [ ] Preencher nomes e RMs dos integrantes no `relatorio.md`
+- [ ] Gerar a imagem do diagrama (plantuml.com ou mermaid.live) e conferir se renderiza
+- [ ] Converter o relatório para PDF/Word e conferir se ficou com no máximo 4 páginas
+- [ ] Gravar o vídeo seguindo o `ROTEIRO_VIDEO.md`
 - [ ] Subir para o GitHub (repositório remoto ainda não configurado)
 
 ## Decisões tomadas
