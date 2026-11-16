@@ -1,80 +1,55 @@
 @startuml
 title FloodRun — Diagrama de Atividades (registro → consulta → análise)
+skinparam ActivityFontSize 13
+skinparam ConditionEndStyle hline
 
-|Cidadão|
 start
-:Abrir o FloodRun;
-
-|Sistema|
-:Carregar mapa (matrizes dist_carro e dist_pe)
+:Carregar mapa (dist_carro e dist_pe)
 e histórico simulado (35 ocorrências);
 
 repeat
-  |Cidadão|
-  :Escolher opção no menu;
-  |Sistema|
+  :Cidadão escolhe uma opção no menu;
   if (Opção válida?) then (não)
     :Mostrar "valor inválido";
   else (sim)
     switch (Opção)
-    case (1 Cadastrar)
-      |Cidadão|
-      :Informar região, data, chuva (mm) e categoria;
-      |Sistema|
-      if (Dados válidos?) then (sim)
-        if (Categoria = alagamento leve?) then (sim)
-          |Cidadão|
-          :Informar se alagou;
-          |Sistema|
-        else (não)
-          :alagou = sim;
-        endif
-        :Adicionar ao vetor de ocorrências;
-      else (não)
-        :Pedir o dado novamente;
-      endif
-    case (2 Listar / 3 Buscar)
-      :Percorrer o vetor (busca sequencial)
-      comparando região ou categoria;
-      :Exibir resultados e contador;
-    case (4 Estatísticas)
-      :Uma passada pelo vetor
-      (contadores e acumuladores);
-      :Exibir totais, chuva média
-      e região mais crítica;
-    case (5 Ordenar)
-      :Ordenar cópia do vetor
-      (selection / bubble / insertion);
-      :Exibir lista ordenada;
+    case (1 Registrar)
+      :Cidadão informa região, data,
+      chuva (mm) e categoria;
+      :Validar dados;
+      :Adicionar ao vetor de ocorrências;
+    case (2-3 Consultar)
+      :Busca sequencial por
+      região ou categoria;
+      :Exibir resultados;
+    case (4-5 Analisar)
+      :Estatísticas (contadores e acumuladores)
+      ou ordenação (selection / bubble / insertion);
+      :Exibir resultado;
     case (6 Risco)
-      |Cidadão|
-      :Informar previsão de chuva (mm);
-      |Sistema|
-      :Para cada região: limiar e seguro
-      por busca sequencial;
+      :Cidadão informa a previsão de chuva;
+      :Calcular limiar e seguro de cada região;
       :Classificar BAIXO / MÉDIO / ALTO;
     case (7 Rota)
-      |Cidadão|
-      :Informar origem, destino, modo (pé/carro)
-      e previsão de chuva;
-      |Sistema|
+      :Cidadão informa origem, destino,
+      modo (pé/carro) e previsão;
       :Calcular risco de cada região;
       if (Destino em risco ALTO?) then (sim)
-        :Avisar: não há rota segura;
+        :Avisar: sem rota segura;
       else (não)
-        :Dijkstra com peso = km × fator de risco
+        :Dijkstra: peso = km × fator de risco
         (regiões ALTO bloqueadas);
         if (Destino alcançado?) then (sim)
-          :Comparar com a rota mais curta sem risco;
-          :Exibir rota, km reais e regiões evitadas;
+          :Exibir rota, km reais
+          e regiões evitadas;
         else (não)
-          :Avisar: não existe rota segura
+          :Avisar: sem rota segura
           (sugerir ir a pé);
         endif
       endif
     endswitch
   endif
-repeat while (Opção diferente de 0 (Sair)?) is (sim) not (não)
+repeat while (Cidadão continua? (opção ≠ 0)) is (sim) not (não)
 :Encerrar;
 stop
 @enduml
