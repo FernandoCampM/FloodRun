@@ -126,6 +126,12 @@ Todos os algoritmos foram **escritos à mão**, sem `<algorithm>`, `std::sort`, 
 - *A pé:* Freguesia → Cachoeirinha → Santana (7,0 km), por uma escadaria só para pedestres.
 - *Com 75 mm:* não existe rota segura de carro, e o sistema avisa e sugere ir a pé, que continua possível.
 
+**Diagrama de atividades (fluxo principal: registro, consulta e análise):**
+
+![Diagrama de atividades do FloodRun](diagrama.png)
+
+*Figura 1: Diagrama de atividades UML do FloodRun (fonte em `diagrama.puml`).*
+
 ## 7. Desafios encontrados
 
 - **Adaptar o Dijkstra ao risco.** O algoritmo clássico só usa distância. A solução foi multiplicar

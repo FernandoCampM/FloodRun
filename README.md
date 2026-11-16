@@ -28,6 +28,6 @@ No Windows, o compilador pode ser instalado com `winget install BrechtSanders.Wi
 ## Documentos
 - [relatorio.md](relatorio.md): relatório técnico, com os ODS 11, 9 e 13
 - [EXPLICACAO.md](EXPLICACAO.md): explicação de cada função, com desenhos ASCII
-- [diagrama.md](diagrama.md) / [diagrama.puml](diagrama.puml): diagrama de atividades
+- [diagrama.png](diagrama.png) / [diagrama.puml](diagrama.puml) / [diagrama.md](diagrama.md): diagrama de atividades
 - [ROTEIRO_TESTE.md](ROTEIRO_TESTE.md): entradas de teste e demonstração
 - [PROGRESSO.md](PROGRESSO.md): andamento e decisões
