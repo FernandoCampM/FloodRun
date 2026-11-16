@@ -26,7 +26,7 @@ No Windows, o compilador pode ser instalado com `winget install BrechtSanders.Wi
 7. Rota mais segura (Dijkstra com peso ajustado pelo risco)
 
 ## Documentos
-- [relatorio.md](relatorio.md): relatório técnico, com os ODS 11, 9 e 13
+- [relatorio.pdf](relatorio.pdf) / [relatorio.docx](relatorio.docx) / [relatorio.md](relatorio.md): relatório técnico, com os ODS 11, 9 e 13
 - [EXPLICACAO.md](EXPLICACAO.md): explicação de cada função, com desenhos ASCII
 - [diagrama.png](diagrama.png) / [diagrama.puml](diagrama.puml) / [diagrama.md](diagrama.md): diagrama de atividades
 - [ROTEIRO_TESTE.md](ROTEIRO_TESTE.md): entradas de teste e demonstração

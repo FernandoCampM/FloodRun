@@ -23,7 +23,7 @@ Documentos: `EXPLICACAO.md` ✔ · `ROTEIRO_TESTE.md` ✔ · `relatorio.md` ✔ 
 ## Falta
 - [x] Nomes e RMs no `relatorio.md` (Fernando Mota RM567451 · André da Silva Pinto RM559038)
 - [x] Imagem do diagrama (`diagrama.png`) gerada e inserida no relatório
-- [ ] Converter o relatório para PDF/Word e conferir se ficou com no máximo 4 páginas
+- [x] `relatorio.docx` e `relatorio.pdf` gerados: 4 páginas A4 (Calibri 11, margens 2 cm), com o diagrama
 - [ ] Gravar o vídeo seguindo o `ROTEIRO_VIDEO.md`
 - [ ] Subir para o GitHub (repositório remoto ainda não configurado)
 
