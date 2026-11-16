@@ -24,8 +24,9 @@ Documentos: `EXPLICACAO.md` ✔ · `ROTEIRO_TESTE.md` ✔ · `relatorio.md` ✔ 
 - [x] Nomes e RMs no `relatorio.md` (Fernando Mota RM567451 · André da Silva Pinto RM559038)
 - [x] Imagem do diagrama (`diagrama.png`) gerada e inserida no relatório
 - [x] `relatorio.docx` e `relatorio.pdf` gerados: 4 páginas A4 (Calibri 11, margens 2 cm), com o diagrama
+- [x] Subir para o GitHub: https://github.com/FernandoCampM/FloodRun (sincronizado em 16/11)
 - [ ] Gravar o vídeo seguindo o `ROTEIRO_VIDEO.md`
-- [ ] Subir para o GitHub (repositório remoto ainda não configurado)
+- [ ] Entregar no portal da FIAP (repositório, relatório PDF, diagrama, vídeo) até 19/11 às 23:59
 
 ## Decisões tomadas
 - **Ano na data**: a ocorrência guarda dia, mês **e ano**, senão a ordenação por data colocaria
