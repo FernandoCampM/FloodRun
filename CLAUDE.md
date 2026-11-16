@@ -1,6 +1,6 @@
 # FloodRun — GS 2026.2 CitizenTech (FIAP) · Data Structures and Algorithms
 
-> Nome provisório: **FloodRun**. Se mudar, troque aqui e na constante `NOME_APP` do código.
+> Nome do projeto: **FloodRun**. Se mudar, troque aqui e na constante `NOME_APP` do código.
 
 ## Contexto
 
