@@ -1,5 +1,5 @@
 @startuml
-title FloodRun — Diagrama de Atividades (registro → consulta → análise)
+title FloodRun — Diagrama de Atividades (registro, consulta e análise)
 skinparam ActivityFontSize 13
 skinparam ConditionEndStyle hline
 
