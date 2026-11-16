@@ -63,6 +63,14 @@ const string categorias[NUM_CATEGORIAS] = {
     "Alagamento leve", "Via intransitável", "Enchente c/ correnteza"
 };
 
+// Níveis de risco: o número também serve de índice em nomesRisco[]
+const int BAIXO = 0;
+const int MEDIO = 1;
+const int ALTO  = 2;
+const string nomesRisco[3] = {"BAIXO", "MÉDIO", "ALTO"};
+
+const double INFINITO = 1e9;    // "ainda não sei chegar" no Dijkstra
+
 // Matrizes de adjacência (km). 0 = não existe ligação direta.
 double dist_carro[N][N];
 double dist_pe[N][N];
@@ -632,6 +640,278 @@ void menuOrdenacao(const vector<Ocorrencia>& lista) {
 }
 
 // ---------------------------------------------------------------------
+//  6) Estimar risco a partir do histórico
+// ---------------------------------------------------------------------
+
+// Limiar = MENOR chuva que já causou enchente na região (busca sequencial do mínimo).
+// Retorna -1 se a região nunca alagou.
+double calcularLimiar(const vector<Ocorrencia>& lista, int regiao) {
+    double limiar = -1;
+    for (size_t i = 0; i < lista.size(); i++) {
+        if (lista[i].regiao == regiao && lista[i].alagou) {
+            if (limiar < 0 || lista[i].chuva_mm < limiar) {
+                limiar = lista[i].chuva_mm;
+            }
+        }
+    }
+    return limiar;
+}
+
+// Seguro = MAIOR chuva que NÃO causou enchente (busca sequencial do máximo).
+// Retorna -1 se não há registro sem alagamento.
+double calcularSeguro(const vector<Ocorrencia>& lista, int regiao) {
+    double seguro = -1;
+    for (size_t i = 0; i < lista.size(); i++) {
+        if (lista[i].regiao == regiao && !lista[i].alagou) {
+            if (lista[i].chuva_mm > seguro) {
+                seguro = lista[i].chuva_mm;
+            }
+        }
+    }
+    return seguro;
+}
+
+int riscoRegiao(const vector<Ocorrencia>& lista, int regiao, double previsao) {
+    double limiar = calcularLimiar(lista, regiao);
+    if (limiar < 0) return BAIXO;                 // nunca alagou
+    if (previsao >= limiar) return ALTO;          // já alagou com essa chuva ou menos
+    double seguro = calcularSeguro(lista, regiao);
+    if (previsao > seguro) return MEDIO;          // passa do que já se sabe ser seguro
+    return BAIXO;
+}
+
+// Preenche o vetor risco[] para todas as regiões de uma vez
+void calcularRiscos(const vector<Ocorrencia>& lista, double previsao, int risco[]) {
+    for (int i = 0; i < N; i++) {
+        risco[i] = riscoRegiao(lista, i, previsao);
+    }
+}
+
+void estimarRisco(const vector<Ocorrencia>& lista) {
+    cout << "\n=== ESTIMAR RISCO ===\n";
+    double previsao = lerDecimal("Previsão de chuva em mm (0-500): ", 0, 500);
+
+    cout << "\nRisco por região para " << formatarDecimal(previsao, 1) << " mm:\n\n";
+    cout << "  " << coluna("Região", 16) << coluna("Limiar", 10)
+         << coluna("Seguro", 10) << "Risco\n";
+    linhaSeparadora(46);
+
+    int qtd[3] = {0, 0, 0};                       // contador por nível de risco
+    for (int i = 0; i < N; i++) {
+        double limiar = calcularLimiar(lista, i);
+        double seguro = calcularSeguro(lista, i);
+        int risco = riscoRegiao(lista, i, previsao);
+        qtd[risco]++;
+        cout << "  " << coluna(regioes[i], 16)
+             << coluna(limiar < 0 ? "—" : formatarDecimal(limiar, 0) + " mm", 10)
+             << coluna(seguro < 0 ? "—" : formatarDecimal(seguro, 0) + " mm", 10)
+             << nomesRisco[risco] << "\n";
+    }
+    cout << "\nResumo: " << qtd[ALTO] << " ALTO, " << qtd[MEDIO] << " MÉDIO, "
+         << qtd[BAIXO] << " BAIXO.\n";
+    cout << "Limiar = menor chuva que já alagou | Seguro = maior chuva que não alagou\n";
+}
+
+// ---------------------------------------------------------------------
+//  7) Rota mais segura — Dijkstra
+// ---------------------------------------------------------------------
+
+// Multiplicador do peso conforme o risco da região de CHEGADA.
+// -1 significa bloqueado (não entra na região).
+double fatorRisco(int risco, bool aPe) {
+    if (risco == ALTO) return -1;
+    if (risco == MEDIO) return aPe ? 2 : 3;   // a pé dá para contornar poças; carro sofre mais
+    return 1;
+}
+
+// Busca sequencial pelo vértice não visitado com menor distância
+int menorNaoVisitado(const double dist[], const bool visitado[]) {
+    int menor = -1;
+    for (int i = 0; i < N; i++) {
+        if (!visitado[i] && dist[i] < INFINITO) {
+            if (menor == -1 || dist[i] < dist[menor]) {
+                menor = i;
+            }
+        }
+    }
+    return menor;
+}
+
+// Dijkstra clássico com vetores. usarRisco = false calcula a rota "normal"
+// (só distância), usada para comparar e descobrir as regiões evitadas.
+void dijkstra(int origem, bool aPe, const int risco[], bool usarRisco,
+              bool mostrarPassos, int anterior[]) {
+    double dist[N];
+    bool visitado[N];
+    for (int i = 0; i < N; i++) {
+        dist[i] = INFINITO;
+        visitado[i] = false;
+        anterior[i] = -1;
+    }
+    dist[origem] = 0;
+
+    int passo = 1;
+    while (true) {
+        int u = menorNaoVisitado(dist, visitado);
+        if (u == -1) break;                       // nada mais alcançável
+        visitado[u] = true;
+        if (mostrarPassos) {
+            cout << "  Passo " << setw(2) << passo++ << ": visita " << coluna(regioes[u], 16)
+                 << "(custo acumulado " << formatarDecimal(dist[u], 1) << ")\n";
+        }
+
+        for (int v = 0; v < N; v++) {
+            double km = aPe ? dist_pe[u][v] : dist_carro[u][v];
+            if (km == 0 || visitado[v]) continue;     // sem ligação ou já resolvido
+
+            double fator = 1;
+            if (usarRisco) {
+                fator = fatorRisco(risco[v], aPe);
+                if (fator < 0) continue;               // região ALTO: bloqueada
+            }
+            double novo = dist[u] + km * fator;
+            if (novo < dist[v]) {                      // achou caminho melhor
+                if (mostrarPassos) {
+                    cout << "           atualiza " << coluna(regioes[v], 16) << "-> "
+                         << formatarDecimal(novo, 1) << "\n";
+                }
+                dist[v] = novo;
+                anterior[v] = u;
+            }
+        }
+    }
+}
+
+// Segue anterior[] de trás para frente e devolve o caminho na ordem certa.
+// Retorna o tamanho do caminho (0 = destino inalcançável).
+int montarCaminho(const int anterior[], int origem, int destino, int caminho[]) {
+    int invertido[N];
+    int tamanho = 0;
+    int atual = destino;
+    while (atual != -1 && tamanho < N) {
+        invertido[tamanho] = atual;
+        tamanho++;
+        if (atual == origem) break;
+        atual = anterior[atual];
+    }
+    if (invertido[tamanho - 1] != origem) return 0;   // não chegou na origem
+    for (int i = 0; i < tamanho; i++) {
+        caminho[i] = invertido[tamanho - 1 - i];
+    }
+    return tamanho;
+}
+
+// Soma os km reais do caminho (sem os fatores de risco) — acumulador
+double distanciaReal(const int caminho[], int tamanho, bool aPe) {
+    double total = 0;
+    for (int i = 0; i < tamanho - 1; i++) {
+        int a = caminho[i];
+        int b = caminho[i + 1];
+        total += aPe ? dist_pe[a][b] : dist_carro[a][b];
+    }
+    return total;
+}
+
+bool contem(const int caminho[], int tamanho, int regiao) {
+    for (int i = 0; i < tamanho; i++) {
+        if (caminho[i] == regiao) return true;
+    }
+    return false;
+}
+
+void imprimirCaminho(const int caminho[], int tamanho, const int risco[]) {
+    cout << "  ";
+    for (int i = 0; i < tamanho; i++) {
+        if (i > 0) cout << " → ";
+        cout << regioes[caminho[i]] << " [" << nomesRisco[risco[caminho[i]]] << "]";
+    }
+    cout << "\n";
+}
+
+void rotaMaisSegura(const vector<Ocorrencia>& lista) {
+    cout << "\n=== ROTA MAIS SEGURA ===\n";
+    int origem = escolherRegiao("Origem (1-" + to_string(N) + "): ");
+    int destino;
+    do {
+        destino = escolherRegiao("Destino (1-" + to_string(N) + "): ");
+        if (destino == origem) cout << "  ! O destino precisa ser diferente da origem.\n";
+    } while (destino == origem);
+    int modo = lerInteiro("Modo (1 = a pé, 2 = carro): ", 1, 2);
+    bool aPe = (modo == 1);
+    double previsao = lerDecimal("Previsão de chuva em mm (0-500): ", 0, 500);
+    int ver = lerInteiro("Mostrar o passo a passo do Dijkstra? (1 = sim, 2 = não): ", 1, 2);
+
+    int risco[N];
+    calcularRiscos(lista, previsao, risco);
+
+    cout << "\n" << regioes[origem] << " → " << regioes[destino] << " | "
+         << (aPe ? "a pé" : "de carro") << " | chuva prevista " << formatarDecimal(previsao, 1) << " mm\n";
+
+    // Regiões bloqueadas pela chuva
+    cout << "Regiões bloqueadas (risco ALTO): ";
+    int bloqueadas = 0;
+    for (int i = 0; i < N; i++) {
+        if (risco[i] == ALTO) {
+            cout << (bloqueadas > 0 ? ", " : "") << regioes[i];
+            bloqueadas++;
+        }
+    }
+    cout << (bloqueadas == 0 ? "nenhuma" : "") << "\n";
+
+    if (risco[origem] == ALTO) {
+        cout << "  ! Atenção: a origem está em risco ALTO. Saia o quanto antes.\n";
+    }
+    if (risco[destino] == ALTO) {
+        cout << "\n  ✖ O destino " << regioes[destino] << " está em risco ALTO de enchente.\n"
+             << "    Não existe rota segura até lá. Adie a viagem ou procure abrigo.\n";
+        return;
+    }
+
+    if (ver == 1) cout << "\nDijkstra passo a passo (custo = km × fator de risco):\n";
+    int anterior[N];
+    dijkstra(origem, aPe, risco, true, ver == 1, anterior);
+
+    int caminho[N];
+    int tamanho = montarCaminho(anterior, origem, destino, caminho);
+    if (tamanho == 0) {
+        cout << "\n  ✖ NÃO existe rota segura " << (aPe ? "a pé" : "de carro")
+             << " com essa chuva: todos os caminhos passam por regiões de risco ALTO.\n";
+        if (!aPe) cout << "    Dica: tente a pé, que tem escadarias e passarelas extras.\n";
+        return;
+    }
+
+    double km = distanciaReal(caminho, tamanho, aPe);
+    cout << "\n  ✔ Rota mais segura:\n";
+    imprimirCaminho(caminho, tamanho, risco);
+    cout << "  Distância real: " << formatarDecimal(km, 1) << " km\n";
+
+    // Compara com a rota mais curta que ignora a chuva
+    int anteriorNormal[N];
+    int caminhoNormal[N];
+    dijkstra(origem, aPe, risco, false, false, anteriorNormal);
+    int tamNormal = montarCaminho(anteriorNormal, origem, destino, caminhoNormal);
+    double kmNormal = distanciaReal(caminhoNormal, tamNormal, aPe);
+
+    cout << "\n  Rota mais curta ignorando a chuva (" << formatarDecimal(kmNormal, 1) << " km):\n";
+    imprimirCaminho(caminhoNormal, tamNormal, risco);
+
+    cout << "  Regiões evitadas: ";
+    int evitadas = 0;
+    for (int i = 0; i < tamNormal; i++) {
+        int r = caminhoNormal[i];
+        if (!contem(caminho, tamanho, r)) {
+            cout << (evitadas > 0 ? ", " : "") << regioes[r] << " (" << nomesRisco[risco[r]] << ")";
+            evitadas++;
+        }
+    }
+    if (evitadas == 0) {
+        cout << "nenhuma — a rota mais curta já é segura\n";
+    } else {
+        cout << "\n  Desvio: +" << formatarDecimal(km - kmNormal, 1) << " km para fugir da enchente\n";
+    }
+}
+
+// ---------------------------------------------------------------------
 //  Menu principal
 // ---------------------------------------------------------------------
 
@@ -645,6 +925,8 @@ void mostrarMenu() {
     cout << "  3) Buscar (por categoria ou região)\n";
     cout << "  4) Estatísticas\n";
     cout << "  5) Listar ordenado\n";
+    cout << "  6) Estimar risco para uma previsão de chuva\n";
+    cout << "  7) Rota mais segura (a pé ou de carro)\n";
     cout << "  0) Sair\n";
     linhaSeparadora(44);
 }
@@ -670,13 +952,15 @@ int main() {
     int opcao;
     do {
         mostrarMenu();
-        opcao = lerInteiro("Escolha: ", 0, 5);
+        opcao = lerInteiro("Escolha: ", 0, 7);
         switch (opcao) {
             case 1: cadastrarOcorrencia(ocorrencias); break;
             case 2: listarTodas(ocorrencias); break;
             case 3: menuBusca(ocorrencias); break;
             case 4: estatisticas(ocorrencias); break;
             case 5: menuOrdenacao(ocorrencias); break;
+            case 6: estimarRisco(ocorrencias); break;
+            case 7: rotaMaisSegura(ocorrencias); break;
             case 0: cout << "\nObrigado por usar o " << NOME_APP << ". Fique seguro!\n"; break;
         }
     } while (opcao != 0);
