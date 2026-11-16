@@ -74,6 +74,13 @@ struct Ocorrencia {
 O mapa é representado como **grafo** por **matriz de adjacência**: cada região é um vértice e
 cada valor diferente de zero na matriz é uma rua (aresta) com sua distância.
 
+**Categorias:** o enunciado cita enchente entre os exemplos de problemas urbanos, e a equipe
+escolheu se aprofundar nela. Por isso, em vez de uma única categoria "enchente", as ocorrências
+são classificadas por **gravidade**: alagamento leve, via intransitável e enchente com correnteza.
+Isso torna as buscas e as estatísticas mais úteis para quem precisa decidir por onde passar. A
+estrutura continua aberta a outros problemas (buraco, iluminação, lixo): basta aumentar o vetor
+`categorias[]` e a constante `NUM_CATEGORIAS`, e os menus se ajustam sozinhos.
+
 ## 5. Algoritmos utilizados
 
 | Algoritmo | Onde | Conteúdo demonstrado |
@@ -106,6 +113,20 @@ evitadas e quantos km a mais o desvio custa.
 
 Todos os algoritmos foram **escritos à mão**, sem `<algorithm>`, `std::sort`, `std::find` ou
 `priority_queue`.
+
+**Conteúdos da disciplina no código (`main.cpp`):**
+
+| Conteúdo | Onde aparece |
+|---|---|
+| Algoritmos | estimativa de risco (`riscoRegiao`) e rota mais segura (`dijkstra`) |
+| Variáveis e tipos de dados | `struct Ocorrencia` com `int`, `double`, `bool` e `string`; constantes como `N` e `INFINITO` |
+| Estruturas de decisão | `if/else` na validação, no risco e no Dijkstra; `switch` no menu principal |
+| Estruturas de repetição | `for` em listagens, buscas e ordenações; `while` na leitura validada; `do-while` no menu |
+| Funções | 44 funções curtas, com parâmetros por valor e por referência (`cadastrarOcorrencia`, `buscarPorRegiao`, `dijkstra`…) |
+| Vetores | `regioes[]`, `vector<Ocorrencia>`, contadores, `risco[]`, `dist[]`, `visitado[]`, `anterior[]`; matrizes do mapa |
+| Busca sequencial | `buscarPorRegiao`, `buscarPorCategoria`, `calcularLimiar`, `calcularSeguro`, `menorNaoVisitado` |
+| Algoritmos de ordenação | `rankingRegioes` (selection), `ordenarPorChuva` (bubble), `ordenarPorData` (insertion) |
+| Contadores e acumuladores | `estatisticas` (totais e soma da chuva), `estimarRisco` (contagem por nível), `distanciaReal` (soma dos km) |
 
 ## 6. Funcionalidades
 
