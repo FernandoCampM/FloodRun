@@ -62,5 +62,6 @@ Opção `7` → `1` → `6` → `2` → `75` → `2`.
 
 ---
 
-**Dica para dividir entre o grupo:** uma pessoa narra o problema e a proposta (0:00–0:45),
-outra os requisitos básicos (0:45–1:50) e outra a rota segura e o encerramento (1:50–3:00).
+**Dica para dividir entre a dupla:** Fernando narra o problema, a proposta e os requisitos
+básicos (0:00–1:35); André narra o risco, a rota segura e o encerramento (1:35–3:00).
+Slide final: Fernando Mota – RM567451 · André da Silva Pinto – RM559038.

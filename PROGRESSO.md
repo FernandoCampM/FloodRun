@@ -21,7 +21,7 @@ Documentos: `EXPLICACAO.md` ✔ · `ROTEIRO_TESTE.md` ✔ · `relatorio.md` ✔ 
 `diagrama.puml` + `diagrama.md` (Mermaid) ✔ · `ROTEIRO_VIDEO.md` ✔
 
 ## Falta
-- [ ] Preencher nomes e RMs dos integrantes no `relatorio.md`
+- [x] Nomes e RMs no `relatorio.md` (Fernando Mota RM567451 · André da Silva Pinto RM559038)
 - [ ] Gerar a imagem do diagrama (plantuml.com ou mermaid.live) e conferir se renderiza
 - [ ] Converter o relatório para PDF/Word e conferir se ficou com no máximo 4 páginas
 - [ ] Gravar o vídeo seguindo o `ROTEIRO_VIDEO.md`

@@ -2,7 +2,7 @@
 
 **Global Solution 2026.2 · CitizenTech · FIAP**
 **Disciplina:** Data Structures and Algorithms · **Curso:** Ciência da Computação
-**Integrantes:** _[Nome – RM]_ · _[Nome – RM]_ · _[Nome – RM]_
+**Integrantes:** Fernando Mota – RM567451 · André da Silva Pinto – RM559038
 
 ---
 
